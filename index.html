@@ -14,13 +14,17 @@
         .content { padding: 30px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 14px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; }
-        input:focus, select:focus { outline: none; border-color: #667eea; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; font-family: inherit; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
         .autocomplete-container { position: relative; }
-        .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #667eea; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; }
+        .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #667eea; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .autocomplete-list.show { display: block; }
         .autocomplete-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
         .autocomplete-item:hover { background: #f5f5f5; }
+        .party-balance { margin-top: 10px; padding: 12px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px; }
+        .party-balance strong { color: #1e40af; }
+        .balance-positive { color: #059669; }
+        .balance-negative { color: #dc2626; }
         .items-section { margin-top: 30px; padding-top: 30px; border-top: 2px solid #f0f0f0; }
         .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 15px; align-items: end; }
         .btn { padding: 12px 24px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
@@ -28,16 +32,17 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
         .btn-success { background: #10b981; color: white; }
         .btn-success:hover { background: #059669; }
+        .btn-info { background: #3b82f6; color: white; }
+        .btn-info:hover { background: #2563eb; }
         .btn-danger { background: #ef4444; color: white; padding: 8px 12px; font-size: 14px; }
         .btn-danger:hover { background: #dc2626; }
         .btn-secondary { background: #6b7280; color: white; }
         .btn-secondary:hover { background: #4b5563; }
         .additional-charges { margin-top: 30px; padding: 20px; background: #f9fafb; border-radius: 8px; }
         .additional-charges h3 { margin-bottom: 15px; color: #333; }
-        .charge-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .charge-item { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; }
         .total-section { margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white; }
-        .total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 18px; }
-        .grand-total { font-size: 24px; font-weight: bold; padding-top: 15px; border-top: 2px solid rgba(255,255,255,0.3); margin-top: 15px; }
+        .total-row { display: flex; justify-content: space-between; font-size: 24px; font-weight: bold; }
         .action-buttons { display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
         .action-buttons .btn { flex: 1; min-width: 150px; }
         #estimatePreview { display: none; background: white; padding: 40px; max-width: 800px; margin: 0 auto; }
@@ -50,12 +55,20 @@
         .estimate-table th { background: #667eea; color: white; padding: 12px; text-align: left; font-weight: 600; }
         .estimate-table td { padding: 12px; border-bottom: 1px solid #e0e0e0; }
         .estimate-table tr:last-child td { border-bottom: 2px solid #667eea; }
-        .estimate-summary { margin-left: auto; width: 300px; }
+        .estimate-summary { width: 100%; margin-top: 20px; }
         .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
-        .summary-row.total { font-size: 20px; font-weight: bold; color: #667eea; border-top: 3px solid #667eea; border-bottom: 3px solid #667eea; margin-top: 10px; padding-top: 15px; }
+        .summary-row.total { font-size: 24px; font-weight: bold; color: #667eea; border-top: 3px solid #667eea; border-bottom: 3px solid #667eea; margin-top: 10px; padding: 15px 0; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 15px; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { color: #333; }
+        .close { font-size: 28px; font-weight: bold; cursor: pointer; color: #999; }
+        .close:hover { color: #333; }
+        .payment-list { max-height: 300px; overflow-y: auto; margin-top: 20px; }
+        .payment-item { padding: 12px; background: #f9fafb; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         @media (max-width: 768px) {
             .item-row { grid-template-columns: 1fr; }
-            .charge-row { grid-template-columns: 1fr; }
+            .charge-item { grid-template-columns: 1fr; }
             .estimate-info { grid-template-columns: 1fr; }
             .action-buttons { flex-direction: column; }
             .action-buttons .btn { width: 100%; }
@@ -69,7 +82,7 @@
     <div class="container">
         <div class="header">
             <h1>📋 Indian Estimate Maker</h1>
-            <p>Create professional estimates in seconds</p>
+            <p>Create professional estimates with payment tracking</p>
         </div>
         <div class="content" id="formSection">
             <div class="form-group">
@@ -77,6 +90,9 @@
                 <div class="autocomplete-container">
                     <input type="text" id="partyName" placeholder="Enter party name" autocomplete="off">
                     <div class="autocomplete-list" id="partyList"></div>
+                </div>
+                <div id="partyBalanceDisplay" class="party-balance" style="display: none;">
+                    <strong>Current Balance:</strong> <span id="currentBalance">₹0.00</span>
                 </div>
             </div>
             <div class="form-group">
@@ -116,36 +132,347 @@
             </div>
             <div class="additional-charges">
                 <h3>Additional Charges</h3>
-                <div class="charge-row">
-                    <div class="form-group">
-                        <label for="courierCharges">Courier Charges (₹)</label>
-                        <input type="number" id="courierCharges" placeholder="0.00" min="0" step="0.01" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="oldBalance">Old Balance (₹)</label>
-                        <input type="number" id="oldBalance" placeholder="0.00" step="0.01" value="0">
+                <div id="chargesContainer">
+                    <div class="charge-item">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" class="charge-desc" placeholder="e.g., Transport, Courier" value="Old Balance">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" class="charge-amount" placeholder="0.00" step="0.01" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-danger remove-charge" style="display: none;">✕</button>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="miscCharges">Miscellaneous Charges (₹)</label>
-                    <input type="number" id="miscCharges" placeholder="0.00" step="0.01" value="0">
-                </div>
+                <button class="btn btn-success" id="addCharge" style="margin-top: 10px;">+ Add Charge</button>
             </div>
             <div class="total-section">
-                <div class="total-row"><span>Subtotal:</span><span id="subtotal">₹0.00</span></div>
-                <div class="total-row"><span>Additional Charges:</span><span id="additionalTotal">₹0.00</span></div>
-                <div class="total-row grand-total"><span>Grand Total:</span><span id="grandTotal">₹0.00</span></div>
+                <div class="total-row">
+                    <span>Total Amount:</span>
+                    <span id="grandTotal">₹0.00</span>
+                </div>
             </div>
             <div class="action-buttons">
                 <button class="btn btn-primary" id="generateEstimate">Generate Estimate</button>
+                <button class="btn btn-info" id="managePayments">Manage Payments</button>
                 <button class="btn btn-secondary" id="resetForm">Reset Form</button>
             </div>
         </div>
         <div id="estimatePreview"></div>
     </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Payments</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="form-group">
+                <label for="paymentParty">Select Party</label>
+                <select id="paymentParty">
+                    <option value="">-- Select Party --</option>
+                </select>
+            </div>
+            <div id="partyPaymentSection" style="display: none;">
+                <div class="party-balance" style="margin-bottom: 20px;">
+                    <strong>Current Balance:</strong> <span id="modalBalance">₹0.00</span>
+                </div>
+                <div class="form-group">
+                    <label for="paymentAmount">Payment Amount (₹)</label>
+                    <input type="number" id="paymentAmount" placeholder="Enter amount" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="paymentDate">Payment Date</label>
+                    <input type="date" id="paymentDate">
+                </div>
+                <div class="form-group">
+                    <label for="paymentNote">Note (Optional)</label>
+                    <textarea id="paymentNote" rows="2" placeholder="Payment note"></textarea>
+                </div>
+                <button class="btn btn-primary" id="addPayment" style="width: 100%;">Add Payment</button>
+                <div class="payment-list" id="paymentList"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-const PARTIES_KEY='estimateParties',ITEMS_KEY='estimateItems';function loadSavedParties(){return JSON.parse(localStorage.getItem(PARTIES_KEY)||'[]')}function loadSavedItems(){return JSON.parse(localStorage.getItem(ITEMS_KEY)||'[]')}function saveParty(e){let t=loadSavedParties();!t.includes(e)&&e.trim()&&(t.push(e.trim()),localStorage.setItem(PARTIES_KEY,JSON.stringify(t)))}function saveItem(e){let t=loadSavedItems();!t.includes(e)&&e.trim()&&(t.push(e.trim()),localStorage.setItem(ITEMS_KEY,JSON.stringify(t)))}function setupAutocomplete(e,t,a){e.addEventListener('input',function(){const n=this.value.toLowerCase(),r='function'==typeof a?a():a;if(0===n.length)return void t.classList.remove('show');const o=r.filter(e=>e.toLowerCase().includes(n));0!==o.length&&(t.innerHTML=o.map(e=>`<div class="autocomplete-item">${e}</div>`).join(''),t.classList.add('show'),t.querySelectorAll('.autocomplete-item').forEach(a=>{a.addEventListener('click',function(){e.value=this.textContent,t.classList.remove('show')})}))}),document.addEventListener('click',function(a){!e.contains(a.target)&&!t.contains(a.target)&&t.classList.remove('show')})}const partyInput=document.getElementById('partyName'),partyList=document.getElementById('partyList');setupAutocomplete(partyInput,partyList,loadSavedParties),document.getElementById('estimateDate').valueAsDate=new Date;function calculateItemTotal(e){const t=parseFloat(e.querySelector('.item-qty').value)||0,a=parseFloat(e.querySelector('.item-price').value)||0,n=t*a;e.querySelector('.item-total').value=n.toFixed(2),calculateTotals()}function calculateTotals(){let e=0;document.querySelectorAll('.item-row').forEach(t=>{e+=parseFloat(t.querySelector('.item-total').value)||0});const t=parseFloat(document.getElementById('courierCharges').value)||0,a=parseFloat(document.getElementById('oldBalance').value)||0,n=parseFloat(document.getElementById('miscCharges').value)||0,r=t+a+n,o=e+r;document.getElementById('subtotal').textContent=`₹${e.toFixed(2)}`,document.getElementById('additionalTotal').textContent=`₹${r.toFixed(2)}`,document.getElementById('grandTotal').textContent=`₹${o.toFixed(2)}`}function setupItemRow(e){const t=e.querySelector('.item-name'),a=e.querySelector('.item-list');setupAutocomplete(t,a,loadSavedItems),e.querySelector('.item-qty').addEventListener('input',()=>calculateItemTotal(e)),e.querySelector('.item-price').addEventListener('input',()=>calculateItemTotal(e)),e.querySelector('.remove-item').addEventListener('click',function(){e.remove(),calculateTotals(),updateRemoveButtons()})}function updateRemoveButtons(){const e=document.querySelectorAll('.item-row');e.forEach((t,a)=>{t.querySelector('.remove-item').style.display=e.length>1?'block':'none'})}function generateEstimatePreview(e,t,a){const n=parseFloat(document.getElementById('courierCharges').value)||0,r=parseFloat(document.getElementById('oldBalance').value)||0,o=parseFloat(document.getElementById('miscCharges').value)||0;let l=a.reduce((e,t)=>e+t.total,0);const s=n+r+o,i=l+s,c=new Date(t).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});let d=`
+        const PARTIES_KEY = 'estimatePartiesData';
+        const ITEMS_KEY = 'estimateItems';
+
+        function loadParties() {
+            return JSON.parse(localStorage.getItem(PARTIES_KEY) || '{}');
+        }
+
+        function saveParties(parties) {
+            localStorage.setItem(PARTIES_KEY, JSON.stringify(parties));
+        }
+
+        function loadSavedItems() {
+            return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]');
+        }
+
+        function saveItems(items) {
+            localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+        }
+
+        function getPartyBalance(partyName) {
+            const parties = loadParties();
+            if (!parties[partyName]) return 0;
+            const invoices = parties[partyName].invoices || [];
+            const payments = parties[partyName].payments || [];
+            const totalInvoices = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+            const totalPayments = payments.reduce((sum, pay) => sum + pay.amount, 0);
+            return totalInvoices - totalPayments;
+        }
+
+        function addInvoiceToParty(partyName, amount, date) {
+            const parties = loadParties();
+            if (!parties[partyName]) {
+                parties[partyName] = { invoices: [], payments: [] };
+            }
+            parties[partyName].invoices.push({ amount, date, timestamp: Date.now() });
+            saveParties(parties);
+        }
+
+        function addPaymentToParty(partyName, amount, date, note) {
+            const parties = loadParties();
+            if (!parties[partyName]) {
+                parties[partyName] = { invoices: [], payments: [] };
+            }
+            parties[partyName].payments.push({ amount, date, note, timestamp: Date.now() });
+            saveParties(parties);
+            return getPartyBalance(partyName);
+        }
+
+        function setupAutocomplete(input, listElement, dataSource) {
+            input.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                const data = typeof dataSource === 'function' ? dataSource() : dataSource;
+                
+                if (value.length === 0) {
+                    listElement.classList.remove('show');
+                    return;
+                }
+
+                const filtered = data.filter(item => item.toLowerCase().includes(value));
+                
+                if (filtered.length === 0) {
+                    listElement.classList.remove('show');
+                    return;
+                }
+
+                listElement.innerHTML = filtered.map(item => 
+                    `<div class="autocomplete-item">${item}</div>`
+                ).join('');
+                
+                listElement.classList.add('show');
+
+                listElement.querySelectorAll('.autocomplete-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        input.value = this.textContent;
+                        listElement.classList.remove('show');
+                        if (input.id === 'partyName') {
+                            updatePartyBalance();
+                        }
+                    });
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !listElement.contains(e.target)) {
+                    listElement.classList.remove('show');
+                }
+            });
+        }
+
+        function updatePartyBalance() {
+            const partyName = document.getElementById('partyName').value.trim();
+            const balanceDisplay = document.getElementById('partyBalanceDisplay');
+            const balanceSpan = document.getElementById('currentBalance');
+            
+            if (partyName) {
+                const balance = getPartyBalance(partyName);
+                balanceSpan.textContent = `₹${balance.toFixed(2)}`;
+                balanceSpan.className = balance >= 0 ? 'balance-negative' : 'balance-positive';
+                balanceDisplay.style.display = 'block';
+            } else {
+                balanceDisplay.style.display = 'none';
+            }
+        }
+
+        const partyInput = document.getElementById('partyName');
+        const partyList = document.getElementById('partyList');
+        setupAutocomplete(partyInput, partyList, () => Object.keys(loadParties()));
+
+        partyInput.addEventListener('blur', updatePartyBalance);
+
+        document.getElementById('estimateDate').valueAsDate = new Date();
+
+        function calculateItemTotal(row) {
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            const total = qty * price;
+            row.querySelector('.item-total').value = total.toFixed(2);
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let itemsTotal = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                itemsTotal += parseFloat(row.querySelector('.item-total').value) || 0;
+            });
+
+            let chargesTotal = 0;
+            document.querySelectorAll('.charge-item').forEach(row => {
+                chargesTotal += parseFloat(row.querySelector('.charge-amount').value) || 0;
+            });
+
+            const grandTotal = itemsTotal + chargesTotal;
+            document.getElementById('grandTotal').textContent = `₹${grandTotal.toFixed(2)}`;
+        }
+
+        document.getElementById('addItem').addEventListener('click', function() {
+            const container = document.getElementById('itemsContainer');
+            const newRow = container.querySelector('.item-row').cloneNode(true);
+            
+            newRow.querySelectorAll('input').forEach(input => {
+                if (!input.classList.contains('item-qty')) {
+                    input.value = '';
+                } else {
+                    input.value = '1';
+                }
+            });
+            
+            newRow.querySelector('.remove-item').style.display = 'block';
+            container.appendChild(newRow);
+            
+            setupItemRow(newRow);
+            updateRemoveButtons('.item-row', '.remove-item');
+        });
+
+        document.getElementById('addCharge').addEventListener('click', function() {
+            const container = document.getElementById('chargesContainer');
+            const newRow = container.querySelector('.charge-item').cloneNode(true);
+            
+            newRow.querySelectorAll('input').forEach(input => {
+                input.value = input.classList.contains('charge-desc') ? '' : '0';
+            });
+            
+            newRow.querySelector('.remove-charge').style.display = 'block';
+            container.appendChild(newRow);
+            
+            setupChargeRow(newRow);
+            updateRemoveButtons('.charge-item', '.remove-charge');
+        });
+
+        function setupItemRow(row) {
+            const itemNameInput = row.querySelector('.item-name');
+            const itemList = row.querySelector('.item-list');
+            setupAutocomplete(itemNameInput, itemList, loadSavedItems);
+
+            row.querySelector('.item-qty').addEventListener('input', () => calculateItemTotal(row));
+            row.querySelector('.item-price').addEventListener('input', () => calculateItemTotal(row));
+            
+            row.querySelector('.remove-item').addEventListener('click', function() {
+                row.remove();
+                calculateTotals();
+                updateRemoveButtons('.item-row', '.remove-item');
+            });
+        }
+
+        function setupChargeRow(row) {
+            row.querySelector('.charge-amount').addEventListener('input', calculateTotals);
+            row.querySelector('.remove-charge').addEventListener('click', function() {
+                row.remove();
+                calculateTotals();
+                updateRemoveButtons('.charge-item', '.remove-charge');
+            });
+        }
+
+        function updateRemoveButtons(rowSelector, buttonSelector) {
+            const rows = document.querySelectorAll(rowSelector);
+            rows.forEach((row) => {
+                const removeBtn = row.querySelector(buttonSelector);
+                removeBtn.style.display = rows.length > 1 ? 'block' : 'none';
+            });
+        }
+
+        setupItemRow(document.querySelector('.item-row'));
+        setupChargeRow(document.querySelector('.charge-item'));
+
+        document.getElementById('generateEstimate').addEventListener('click', function() {
+            const partyName = document.getElementById('partyName').value.trim();
+            const estimateDate = document.getElementById('estimateDate').value;
+
+            if (!partyName) {
+                alert('Please enter party name');
+                return;
+            }
+
+            if (!estimateDate) {
+                alert('Please select estimate date');
+                return;
+            }
+
+            const items = [];
+            const itemNames = new Set();
+            document.querySelectorAll('.item-row').forEach(row => {
+                const itemName = row.querySelector('.item-name').value.trim();
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const total = parseFloat(row.querySelector('.item-total').value) || 0;
+
+                if (itemName && qty > 0 && price > 0) {
+                    items.push({ itemName, qty, price, total });
+                    itemNames.add(itemName);
+                }
+            });
+
+            if (items.length === 0) {
+                alert('Please add at least one item');
+                return;
+            }
+
+            const charges = [];
+            document.querySelectorAll('.charge-item').forEach(row => {
+                const desc = row.querySelector('.charge-desc').value.trim();
+                const amount = parseFloat(row.querySelector('.charge-amount').value) || 0;
+                if (desc && amount !== 0) {
+                    charges.push({ desc, amount });
+                }
+            });
+
+            const savedItems = loadSavedItems();
+            itemNames.forEach(name => {
+                if (!savedItems.includes(name)) {
+                    savedItems.push(name);
+                }
+            });
+            saveItems(savedItems);
+
+            let itemsTotal = items.reduce((sum, item) => sum + item.total, 0);
+            let chargesTotal = charges.reduce((sum, charge) => sum + charge.amount, 0);
+            const grandTotal = itemsTotal + chargesTotal;
+
+            addInvoiceToParty(partyName, grandTotal, estimateDate);
+            const newBalance = getPartyBalance(partyName);
+
+            generateEstimatePreview(partyName, estimateDate, items, charges, grandTotal, newBalance);
+        });
+
+        function generateEstimatePreview(partyName, estimateDate, items, charges, grandTotal, newBalance) {
+            const formattedDate = new Date(estimateDate).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+
+            let html = `
                 <div class="estimate-header">
                     <h1>ESTIMATE</h1>
                     <p style="color: #666; font-size: 14px;">Professional Estimate Document</p>
@@ -153,11 +480,11 @@ const PARTIES_KEY='estimateParties',ITEMS_KEY='estimateItems';function loadSaved
                 <div class="estimate-info">
                     <div class="info-box">
                         <h3>Party Details</h3>
-                        <p style="font-size: 18px; font-weight: 600; color: #333;">${e}</p>
+                        <p style="font-size: 18px; font-weight: 600; color: #333;">${partyName}</p>
                     </div>
                     <div class="info-box">
                         <h3>Estimate Date</h3>
-                        <p style="font-size: 18px; font-weight: 600; color: #333;">${c}</p>
+                        <p style="font-size: 18px; font-weight: 600; color: #333;">${formattedDate}</p>
                     </div>
                 </div>
                 <table class="estimate-table">
@@ -171,71 +498,218 @@ const PARTIES_KEY='estimateParties',ITEMS_KEY='estimateItems';function loadSaved
                         </tr>
                     </thead>
                     <tbody>
-                        ${a.map((e,t)=>`
+                        ${items.map((item, index) => `
                             <tr>
-                                <td>${t+1}</td>
-                                <td>${e.itemName}</td>
-                                <td>${e.qty}</td>
-                                <td>₹${e.price.toFixed(2)}</td>
-                                <td>₹${e.total.toFixed(2)}</td>
+                                <td>${index + 1}</td>
+                                <td>${item.itemName}</td>
+                                <td>${item.qty}</td>
+                                <td>₹${item.price.toFixed(2)}</td>
+                                <td>₹${item.total.toFixed(2)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
                 <div class="estimate-summary">
+                    ${charges.length > 0 ? charges.map(charge => `
                     <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span>₹${l.toFixed(2)}</span>
-                    </div>
-                    ${n>0?`
-                    <div class="summary-row">
-                        <span>Courier Charges:</span>
-                        <span>₹${n.toFixed(2)}</span>
-                    </div>`:''}
-                    ${0!==r?`
-                    <div class="summary-row">
-                        <span>Old Balance:</span>
-                        <span>₹${r.toFixed(2)}</span>
-                    </div>`:''}
-                    ${o>0?`
-                    <div class="summary-row">
-                        <span>Misc. Charges:</span>
-                        <span>₹${o.toFixed(2)}</span>
-                    </div>`:''}
+                        <span>${charge.desc}:</span>
+                        <span>₹${charge.amount.toFixed(2)}</span>
+                    </div>`).join('') : ''}
                     <div class="summary-row total">
-                        <span>Grand Total:</span>
-                        <span>₹${i.toFixed(2)}</span>
+                        <span>Total Amount:</span>
+                        <span>₹${grandTotal.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0; font-size: 18px; font-weight: 600; color: ${newBalance >= 0 ? '#dc2626' : '#059669'};">
+                        <span>Current Balance:</span>
+                        <span>₹${newBalance.toFixed(2)}</span>
                     </div>
                 </div>
                 <div style="margin-top: 40px; text-align: center;">
                     <button class="btn btn-primary" id="downloadEstimate">📥 Download as Image</button>
                     <button class="btn btn-secondary" id="backToForm" style="margin-left: 15px;">← Back to Form</button>
                 </div>
-            `;const m=document.getElementById('estimatePreview');m.innerHTML=d,m.style.display='block',document.getElementById('formSection').style.display='none',document.getElementById('downloadEstimate').addEventListener('click',downloadEstimate),document.getElementById('backToForm').addEventListener('click',function(){m.style.display='none',document.getElementById('formSection').style.display='block'}),m.scrollIntoView({behavior:'smooth'})}function downloadEstimate(){const e=document.getElementById('downloadEstimate'),t=document.getElementById('backToForm');e.style.display='none',t.style.display='none',html2canvas(document.getElementById('estimatePreview'),{scale:2,backgroundColor:'#ffffff',logging:!1}).then(a=>{const n=document.createElement('a'),r=document.getElementById('partyName').value.trim(),o=new Date().toISOString().split('T')[0];n.download=`Estimate_${r}_${o}.png`,n.href=a.toDataURL('image/png'),n.click(),e.style.display='inline-block',t.style.display='inline-block'})}document.getElementById('addItem').addEventListener('click',function(){const e=document.getElementById('itemsContainer'),t=e.querySelector('.item-row').cloneNode(!0);t.querySelectorAll('input').forEach(e=>{e.classList.contains('item-qty')?e.value='1':e.value=''}),t.querySelector('.remove-item').style.display='block',e.appendChild(t),setupItemRow(t),updateRemoveButtons()}),setupItemRow(document.querySelector('.item-row')),['courierCharges','oldBalance','miscCharges'].forEach(e=>{document.getElementById(e).addEventListener('input',calculateTotals)}),document.getElementById('generateEstimate').addEventListener('click',function(){const e=document.getElementById('partyName').value.trim(),t=document.getElementById('estimateDate').value;if(!e)return void alert('Please enter party name');if(!t)return void alert('Please select estimate date');saveParty(e);const a=[];if(document.querySelectorAll('.item-row').forEach(e=>{const t=e.querySelector('.item-name').value.trim(),n=parseFloat(e.querySelector('.item-qty').value)||0,r=parseFloat(e.querySelector('.item-price').value)||0,o=parseFloat(e.querySelector('.item-total').value)||0;t&&n>0&&r>0&&(a.push({itemName:t,qty:n,price:r,total:o}),saveItem(t))}),0===a.length)return void alert('Please add at least one item');generateEstimatePreview(e,t,a)}),document.getElementById('resetForm').addEventListener('click',function(){if(confirm('Are you sure you want to reset the form?')){document.getElementById('partyName').value='',document.getElementById('estimateDate').valueAsDate=new Date,document.getElementById('courierCharges').value='0',document.getElementById('oldBalance').value='0',document.getElementById('miscCharges').value='0';const e=document.getElementById('itemsContainer');e.innerHTML='';const t=document.createElement('div');t.className='item-row',t.innerHTML=`
-                    <div class="form-group">
-                        <label>Item Name</label>
-                        <div class="autocomplete-container">
-                            <input type="text" class="item-name" placeholder="Enter item name" autocomplete="off">
-                            <div class="autocomplete-list item-list"></div>
+            `;
+
+            const preview = document.getElementById('estimatePreview');
+            preview.innerHTML = html;
+            preview.style.display = 'block';
+            document.getElementById('formSection').style.display = 'none';
+
+            document.getElementById('downloadEstimate').addEventListener('click', downloadEstimate);
+            document.getElementById('backToForm').addEventListener('click', function() {
+                preview.style.display = 'none';
+                document.getElementById('formSection').style.display = 'block';
+            });
+
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadEstimate() {
+            const button = document.getElementById('downloadEstimate');
+            const backButton = document.getElementById('backToForm');
+            button.style.display = 'none';
+            backButton.style.display = 'none';
+
+            html2canvas(document.getElementById('estimatePreview'), {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                const partyName = document.getElementById('partyName').value.trim();
+                const date = new Date().toISOString().split('T')[0];
+                link.download = `Estimate_${partyName}_${date}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                button.style.display = 'inline-block';
+                backButton.style.display = 'inline-block';
+            });
+        }
+
+        document.getElementById('resetForm').addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset the form?')) {
+                document.getElementById('partyName').value = '';
+                document.getElementById('estimateDate').valueAsDate = new Date();
+                document.getElementById('partyBalanceDisplay').style.display = 'none';
+                
+                const itemsContainer = document.getElementById('itemsContainer');
+                itemsContainer.innerHTML = `
+                    <div class="item-row">
+                        <div class="form-group">
+                            <label>Item Name</label>
+                            <div class="autocomplete-container">
+                                <input type="text" class="item-name" placeholder="Enter item name" autocomplete="off">
+                                <div class="autocomplete-list item-list"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" class="item-qty" placeholder="Qty" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Price (₹)</label>
+                            <input type="number" class="item-price" placeholder="Price" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Total (₹)</label>
+                            <input type="number" class="item-total" placeholder="Total" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-danger remove-item" style="display: none;">✕</button>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Quantity</label>
-                        <input type="number" class="item-qty" placeholder="Qty" min="1" value="1">
+                `;
+                setupItemRow(itemsContainer.querySelector('.item-row'));
+
+                const chargesContainer = document.getElementById('chargesContainer');
+                chargesContainer.innerHTML = `
+                    <div class="charge-item">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" class="charge-desc" placeholder="e.g., Transport, Courier" value="Old Balance">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" class="charge-amount" placeholder="0.00" step="0.01" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-danger remove-charge" style="display: none;">✕</button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Price (₹)</label>
-                        <input type="number" class="item-price" placeholder="Price" min="0" step="0.01">
+                `;
+                setupChargeRow(chargesContainer.querySelector('.charge-item'));
+                calculateTotals();
+            }
+        });
+
+        // Payment Modal
+        const modal = document.getElementById('paymentModal');
+        const closeBtn = document.querySelector('.close');
+
+        document.getElementById('managePayments').addEventListener('click', function() {
+            const parties = Object.keys(loadParties());
+            const select = document.getElementById('paymentParty');
+            select.innerHTML = '<option value="">-- Select Party --</option>' + 
+                parties.map(p => `<option value="${p}">${p}</option>`).join('');
+            modal.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.getElementById('paymentParty').addEventListener('change', function() {
+            const partyName = this.value;
+            const section = document.getElementById('partyPaymentSection');
+            
+            if (partyName) {
+                const balance = getPartyBalance(partyName);
+                document.getElementById('modalBalance').textContent = `₹${balance.toFixed(2)}`;
+                document.getElementById('modalBalance').className = balance >= 0 ? 'balance-negative' : 'balance-positive';
+                document.getElementById('paymentDate').valueAsDate = new Date();
+                section.style.display = 'block';
+                loadPaymentHistory(partyName);
+            } else {
+                section.style.display = 'none';
+            }
+        });
+
+        document.getElementById('addPayment').addEventListener('click', function() {
+            const partyName = document.getElementById('paymentParty').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const date = document.getElementById('paymentDate').value;
+            const note = document.getElementById('paymentNote').value.trim();
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid payment amount');
+                return;
+            }
+
+            if (!date) {
+                alert('Please select payment date');
+                return;
+            }
+
+            const newBalance = addPaymentToParty(partyName, amount, date, note);
+            document.getElementById('modalBalance').textContent = `₹${newBalance.toFixed(2)}`;
+            document.getElementById('modalBalance').className = newBalance >= 0 ? 'balance-negative' : 'balance-positive';
+            
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentNote').value = '';
+            
+            loadPaymentHistory(partyName);
+            alert('Payment added successfully!');
+        });
+
+        function loadPaymentHistory(partyName) {
+            const parties = loadParties();
+            const party = parties[partyName];
+            const list = document.getElementById('paymentList');
+            
+            if (!party || !party.payments || party.payments.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No payments recorded</p>';
+                return;
+            }
+
+            list.innerHTML = party.payments.sort((a, b) => b.timestamp - a.timestamp).map(payment => `
+                <div class="payment-item">
+                    <div>
+                        <strong>₹${payment.amount.toFixed(2)}</strong><br>
+                        <small>${new Date(payment.date).toLocaleDateString('en-IN')}</small>
+                        ${payment.note ? `<br><small style="color: #666;">${payment.note}</small>` : ''}
                     </div>
-                    <div class="form-group">
-                        <label>Total (₹)</label>
-                        <input type="number" class="item-total" placeholder="Total" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-danger remove-item" style="display: none;">✕</button>
-                    </div>
-                `,e.appendChild(t),setupItemRow(t),calculateTotals()}});
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
