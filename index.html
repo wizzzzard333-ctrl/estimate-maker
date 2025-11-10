@@ -40,7 +40,7 @@
         .btn-danger:hover { background: #dc2626; }
         .btn-secondary { background: #6b7280; color: white; }
         .btn-secondary:hover { background: #4b5563; }
-        .btn-small { padding: 6px 12px; font-size: 13px; }
+        .btn-small { padding: 8px 16px; font-size: 14px; }
         .additional-charges { margin-top: 30px; padding: 20px; background: #f9fafb; border-radius: 8px; }
         .additional-charges h3 { margin-bottom: 15px; color: #333; }
         .charge-item { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: end; }
@@ -87,10 +87,14 @@
         .payment-list, .history-list, .party-list { max-height: 400px; overflow-y: auto; margin-top: 20px; }
         .payment-item, .history-item, .party-item { padding: 15px; background: #f9fafb; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea; }
         .payment-item { display: flex; justify-content: space-between; align-items: center; }
-        .payment-actions { display: flex; gap: 8px; }
+        .payment-info { flex: 1; }
+        .payment-actions { display: flex; gap: 8px; flex-shrink: 0; }
         .history-item { cursor: pointer; transition: all 0.3s; }
         .history-item:hover { background: #f0f0f0; transform: translateX(5px); }
         .party-item { display: flex; justify-content: space-between; align-items: center; }
+        
+        .edit-payment-form { background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #ffc107; }
+        .edit-payment-form h4 { color: #856404; margin-bottom: 15px; }
         
         @media (max-width: 768px) {
             .item-row { grid-template-columns: 1fr; }
@@ -103,6 +107,8 @@
             .estimate-table { font-size: 12px; }
             .estimate-table th, .estimate-table td { padding: 6px 4px; }
             .payment-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .payment-actions { width: 100%; }
+            .payment-actions button { flex: 1; }
         }
     </style>
 </head>
@@ -229,19 +235,46 @@
                 <div class="party-balance" style="margin-bottom: 20px;">
                     <strong>Current Balance:</strong> <span id="modalBalance">₹0.00</span>
                 </div>
-                <div class="form-group">
-                    <label for="paymentAmount">Payment Amount (₹)</label>
-                    <input type="number" id="paymentAmount" placeholder="Enter amount" step="0.01">
+                
+                <!-- Edit Payment Form (Hidden by default) -->
+                <div id="editPaymentForm" class="edit-payment-form" style="display: none;">
+                    <h4>✏️ Edit Payment</h4>
+                    <input type="hidden" id="editPaymentId">
+                    <div class="form-group">
+                        <label for="editPaymentAmount">Payment Amount (₹)</label>
+                        <input type="number" id="editPaymentAmount" placeholder="Enter amount" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPaymentDate">Payment Date</label>
+                        <input type="date" id="editPaymentDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPaymentNote">Note (Optional)</label>
+                        <textarea id="editPaymentNote" rows="2" placeholder="Payment note"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" id="saveEditPayment" style="flex: 1;">Save Changes</button>
+                        <button class="btn btn-secondary" id="cancelEditPayment" style="flex: 1;">Cancel</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="paymentDate">Payment Date</label>
-                    <input type="date" id="paymentDate">
+
+                <!-- Add Payment Form -->
+                <div id="addPaymentForm">
+                    <div class="form-group">
+                        <label for="paymentAmount">Payment Amount (₹)</label>
+                        <input type="number" id="paymentAmount" placeholder="Enter amount" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate">Payment Date</label>
+                        <input type="date" id="paymentDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentNote">Note (Optional)</label>
+                        <textarea id="paymentNote" rows="2" placeholder="Payment note"></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="addPayment" style="width: 100%;">Add Payment</button>
                 </div>
-                <div class="form-group">
-                    <label for="paymentNote">Note (Optional)</label>
-                    <textarea id="paymentNote" rows="2" placeholder="Payment note"></textarea>
-                </div>
-                <button class="btn btn-primary" id="addPayment" style="width: 100%;">Add Payment</button>
+
                 <h3 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Payment History</h3>
                 <div class="payment-list" id="paymentList"></div>
             </div>
@@ -271,6 +304,7 @@
         const PARTIES_KEY = 'estimatePartiesData';
         const ITEMS_KEY = 'estimateItems';
         const HISTORY_KEY = 'estimateHistory';
+        let currentEditingParty = null;
 
         function loadParties() {
             return JSON.parse(localStorage.getItem(PARTIES_KEY) || '{}');
@@ -825,7 +859,7 @@
                             <strong>${partyName}</strong><br>
                             <small style="color: ${balance >= 0 ? '#dc2626' : '#059669'};">Balance: ₹${balance.toFixed(2)}</small>
                         </div>
-                        <button class="btn btn-danger btn-small" onclick="deleteParty('${partyName}')">Delete</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteParty('${partyName.replace(/'/g, "\\'")}')">Delete</button>
                     </div>
                 `;
             }).join('');
@@ -847,11 +881,16 @@
             select.innerHTML = '<option value="">-- Select Party --</option>' + 
                 parties.map(p => `<option value="${p}">${p}</option>`).join('');
             modals.paymentModal.style.display = 'block';
+            
+            // Hide edit form when opening modal
+            document.getElementById('editPaymentForm').style.display = 'none';
+            document.getElementById('addPaymentForm').style.display = 'block';
         });
 
         document.getElementById('paymentParty').addEventListener('change', function() {
             const partyName = this.value;
             const section = document.getElementById('partyPaymentSection');
+            currentEditingParty = partyName;
             
             if (partyName) {
                 const balance = getPartyBalance(partyName);
@@ -859,6 +898,11 @@
                 document.getElementById('modalBalance').className = balance >= 0 ? 'balance-negative' : 'balance-positive';
                 document.getElementById('paymentDate').valueAsDate = new Date();
                 section.style.display = 'block';
+                
+                // Hide edit form and show add form
+                document.getElementById('editPaymentForm').style.display = 'none';
+                document.getElementById('addPaymentForm').style.display = 'block';
+                
                 loadPaymentHistory(partyName);
             } else {
                 section.style.display = 'none';
@@ -892,6 +936,53 @@
             alert('Payment added successfully!');
         });
 
+        // Edit Payment Functions
+        function showEditPaymentForm(partyName, paymentId, amount, date, note) {
+            document.getElementById('editPaymentId').value = paymentId;
+            document.getElementById('editPaymentAmount').value = amount;
+            document.getElementById('editPaymentDate').value = date;
+            document.getElementById('editPaymentNote').value = note || '';
+            
+            document.getElementById('editPaymentForm').style.display = 'block';
+            document.getElementById('addPaymentForm').style.display = 'none';
+            
+            document.getElementById('editPaymentForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        document.getElementById('saveEditPayment').addEventListener('click', function() {
+            const partyName = currentEditingParty;
+            const paymentId = parseInt(document.getElementById('editPaymentId').value);
+            const amount = parseFloat(document.getElementById('editPaymentAmount').value);
+            const date = document.getElementById('editPaymentDate').value;
+            const note = document.getElementById('editPaymentNote').value.trim();
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid payment amount');
+                return;
+            }
+
+            if (!date) {
+                alert('Please select payment date');
+                return;
+            }
+
+            const newBalance = updatePayment(partyName, paymentId, amount, date, note);
+            document.getElementById('modalBalance').textContent = `₹${newBalance.toFixed(2)}`;
+            document.getElementById('modalBalance').className = newBalance >= 0 ? 'balance-negative' : 'balance-positive';
+            
+            // Hide edit form and show add form
+            document.getElementById('editPaymentForm').style.display = 'none';
+            document.getElementById('addPaymentForm').style.display = 'block';
+            
+            loadPaymentHistory(partyName);
+            alert('Payment updated successfully!');
+        });
+
+        document.getElementById('cancelEditPayment').addEventListener('click', function() {
+            document.getElementById('editPaymentForm').style.display = 'none';
+            document.getElementById('addPaymentForm').style.display = 'block';
+        });
+
         function loadPaymentHistory(partyName) {
             const parties = loadParties();
             const party = parties[partyName];
@@ -904,41 +995,17 @@
 
             list.innerHTML = party.payments.sort((a, b) => b.timestamp - a.timestamp).map(payment => `
                 <div class="payment-item">
-                    <div>
-                        <strong>₹${payment.amount.toFixed(2)}</strong><br>
-                        <small>${new Date(payment.date).toLocaleDateString('en-IN')}</small>
-                        ${payment.note ? `<br><small style="color: #666;">${payment.note}</small>` : ''}
+                    <div class="payment-info">
+                        <strong style="font-size: 18px; color: #667eea;">₹${payment.amount.toFixed(2)}</strong><br>
+                        <small style="color: #666;">📅 ${new Date(payment.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</small>
+                        ${payment.note ? `<br><small style="color: #666;">📝 ${payment.note}</small>` : ''}
                     </div>
                     <div class="payment-actions">
-                        <button class="btn btn-info btn-small" onclick='editPayment("${partyName}", ${payment.id}, ${payment.amount}, "${payment.date}", "${payment.note || ''}")'>Edit</button>
-                        <button class="btn btn-danger btn-small" onclick='deletePaymentConfirm("${partyName}", ${payment.id})'>Delete</button>
+                        <button class="btn btn-info btn-small" onclick='showEditPaymentForm("${partyName.replace(/'/g, "\\'")}",${payment.id},${payment.amount},"${payment.date}","${(payment.note || '').replace(/"/g, '&quot;')}")'>✏️ Edit</button>
+                        <button class="btn btn-danger btn-small" onclick='deletePaymentConfirm("${partyName.replace(/'/g, "\\'")}",${payment.id})'>🗑️ Delete</button>
                     </div>
                 </div>
             `).join('');
-        }
-
-        function editPayment(partyName, paymentId, amount, date, note) {
-            const newAmount = prompt('Enter new payment amount:', amount);
-            if (newAmount === null) return;
-            
-            const parsedAmount = parseFloat(newAmount);
-            if (isNaN(parsedAmount) || parsedAmount <= 0) {
-                alert('Invalid amount');
-                return;
-            }
-
-            const newDate = prompt('Enter new date (YYYY-MM-DD):', date);
-            if (newDate === null) return;
-
-            const newNote = prompt('Enter new note (optional):', note);
-            if (newNote === null) return;
-
-            const newBalance = updatePayment(partyName, paymentId, parsedAmount, newDate, newNote);
-            document.getElementById('modalBalance').textContent = `₹${newBalance.toFixed(2)}`;
-            document.getElementById('modalBalance').className = newBalance >= 0 ? 'balance-negative' : 'balance-positive';
-            
-            loadPaymentHistory(partyName);
-            alert('Payment updated successfully!');
         }
 
         function deletePaymentConfirm(partyName, paymentId) {
